@@ -1,0 +1,3 @@
+"use strict";
+const { json, requireSite, rateLimit, getConfig, verifyPassword, readJson, issueToken } = require("./_security");
+exports.handler=async(event)=>{try{if(event.httpMethod!=="POST")return json(405,{ok:false,message:"Gunakan POST."});requireSite(event);await rateLimit(event,"admin-login",10,600);const {password}=readJson(event);const c=await getConfig();if(!c?.adminPasswordHash)return json(503,{ok:false,message:"API belum disiapkan."});if(!verifyPassword(String(password||""),c.adminPasswordHash))return json(401,{ok:false,message:"Password admin salah."});return json(200,{ok:true,token:issueToken({type:"admin"},60*60),expiresIn:3600});}catch(e){return json(e.status||500,{ok:false,message:e.message})}};
