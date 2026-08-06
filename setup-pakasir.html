@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Aktifkan Order Otomatis — Sipaa Shop</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#080d18;color:#eef4ff;font-family:Inter,Arial,sans-serif;padding:22px}.wrap{max-width:620px;margin:auto}.brand{font-weight:900;font-size:25px;margin:14px 0 22px}.card{background:#10182a;border:1px solid #283754;border-radius:20px;padding:20px;margin-bottom:15px;box-shadow:0 16px 50px rgba(0,0,0,.28)}h1{font-size:23px;margin:0 0 8px}p{color:#9aa9c2;line-height:1.6;margin:7px 0 15px}.label{display:block;margin:14px 0 7px;font-weight:800}.fixed,input{width:100%;padding:14px;border-radius:12px;border:1px solid #30415f;background:#091120;color:#fff;font-size:15px}.fixed{color:#8fb9ff}.btn{width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#2563eb,#0891b2);color:#fff;font-weight:900;font-size:15px;margin-top:15px;cursor:pointer}.btn.secondary{background:#17233a;border:1px solid #30415f}.result{white-space:pre-wrap;word-break:break-word;background:#070c15;padding:13px;border-radius:11px;color:#a9f4c7;min-height:48px;margin-top:15px}.warning{border-color:#7a5520;background:#1a1710}.warning strong{color:#ffd166}.step{display:flex;gap:11px;margin:12px 0;color:#c8d5ea;line-height:1.5}.num{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:#1f6feb;font-weight:900;flex:none}.small{font-size:12px;color:#7f90ad}.webhook{display:flex;gap:8px}.webhook input{flex:1}.webhook button{width:auto;padding:0 15px;border-radius:12px;border:1px solid #30415f;background:#17233a;color:#fff;font-weight:800}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">Sipaa Shop</div>
+    <div class="card">
+      <h1>Aktifkan order otomatis</h1>
+      <p>Ini hanya dilakukan satu kali. Setelah aktif, pembayaran QRIS yang berhasil akan dicek dan pesanan TikTok diteruskan otomatis ke Fayupedia.</p>
+
+      <span class="label">Project Pakasir</span>
+      <div class="fixed" id="project">sipaaa-storee</div>
+
+      <label class="label" for="apiKey">API Key Project Pakasir</label>
+      <input id="apiKey" type="password" autocomplete="off" placeholder="Tempel API Key Pakasir">
+
+      <label class="label" for="password">Password admin Sipaa Shop</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Password admin">
+
+      <button class="btn" id="saveButton" onclick="saveConfig()">Simpan dan aktifkan</button>
+      <div class="result" id="result">Memeriksa konfigurasi…</div>
+    </div>
+
+    <div class="card warning" id="webhookCard" hidden>
+      <strong>Langkah terakhir agar tetap otomatis walau pembeli menutup halaman</strong>
+      <div class="step"><span class="num">1</span><span>Buka Pakasir, pilih project <b>sipaaa-storee</b>, lalu tekan <b>Edit Project</b>.</span></div>
+      <div class="step"><span class="num">2</span><span>Tempel alamat berikut ke kolom <b>Webhook URL</b>, lalu simpan.</span></div>
+      <div class="webhook"><input id="webhookUrl" readonly><button onclick="copyWebhook()">Salin</button></div>
+      <p class="small">Tanpa webhook pun status akan dicek saat pembeli kembali ke web. Webhook membuat proses tetap berjalan ketika halaman pembayaran ditutup.</p>
+    </div>
+  </div>
+<script>
+const result = document.getElementById('result');
+const endpoint = '/.netlify/functions/pakasir-setup';
+async function parse(response){
+  const text=await response.text();
+  if(!text || text.trim().startsWith('<')) throw new Error('Fungsi Netlify belum terbaca. Upload ZIP ini secara utuh.');
+  const data=JSON.parse(text);
+  if(!response.ok || !data.ok) throw new Error(data.message||'Gagal menyimpan.');
+  return data;
+}
+async function check(){
+  try{
+    const data=await parse(await fetch(endpoint,{cache:'no-store',headers:{Accept:'application/json'}}));
+    document.getElementById('project').textContent=data.project||'sipaaa-storee';
+    if(data.configured){
+      result.textContent='AKTIF — API Key Pakasir sudah tersimpan di bagian server.';
+      showWebhook(data.webhookUrl);
+    }else result.textContent='Belum aktif. Isi API Key Pakasir dan password admin.';
+  }catch(error){result.textContent='Gagal memeriksa: '+error.message}
+}
+async function saveConfig(){
+  const button=document.getElementById('saveButton');
+  button.disabled=true; result.textContent='Menyimpan dan mengetes konfigurasi…';
+  try{
+    const data=await parse(await fetch(endpoint,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({apiKey:document.getElementById('apiKey').value.trim(),password:document.getElementById('password').value})}));
+    document.getElementById('apiKey').value=''; document.getElementById('password').value='';
+    result.textContent='BERHASIL — order otomatis sudah aktif.';
+    showWebhook(data.webhookUrl);
+  }catch(error){result.textContent='GAGAL — '+error.message}finally{button.disabled=false}
+}
+function showWebhook(url){document.getElementById('webhookCard').hidden=false;document.getElementById('webhookUrl').value=url||'https://sipaashop.my.id/.netlify/functions/pakasir-webhook'}
+async function copyWebhook(){await navigator.clipboard.writeText(document.getElementById('webhookUrl').value);result.textContent='Alamat webhook sudah disalin.'}
+check();
+</script>
+</body></html>
