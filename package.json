@@ -1,0 +1,12 @@
+{
+  "name": "sipaashop-auto-v4",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Sipaa Shop automatic Pakasir to Fayupedia order flow",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node --check netlify/functions/_security.js && node --check netlify/functions/_fayu.js && node --check netlify/functions/_blobs.js && node --check netlify/functions/_orders.js && node --check netlify/functions/create-tiktok-order.js && node --check netlify/functions/order-status.js && node --check netlify/functions/pakasir-webhook.js && node --check netlify/functions/pakasir-setup.js"
+  }
+}
