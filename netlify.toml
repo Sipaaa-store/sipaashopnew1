@@ -1,0 +1,56 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/license"
+  to = "/.netlify/functions/license"
+  status = 200
+[[redirects]]
+  from = "/api/admin/login"
+  to = "/.netlify/functions/admin-login"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/services"
+  to = "/.netlify/functions/fayu-services"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/balance"
+  to = "/.netlify/functions/fayu-balance"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/order"
+  to = "/.netlify/functions/fayu-order"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/status"
+  to = "/.netlify/functions/fayu-status"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/refill"
+  to = "/.netlify/functions/fayu-refill"
+  status = 200
+[[redirects]]
+  from = "/api/fayu/refill/status"
+  to = "/.netlify/functions/fayu-refill-status"
+  status = 200
+
+[[redirects]]
+  from = "/api/orders/tiktok/create"
+  to = "/.netlify/functions/create-tiktok-order"
+  status = 200
+[[redirects]]
+  from = "/api/orders/status"
+  to = "/.netlify/functions/order-status"
+  status = 200
+[[redirects]]
+  from = "/api/pakasir/webhook"
+  to = "/.netlify/functions/pakasir-webhook"
+  status = 200
+[[redirects]]
+  from = "/api/pakasir/setup"
+  to = "/.netlify/functions/pakasir-setup"
+  status = 200
